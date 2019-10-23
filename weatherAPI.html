@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js"></script>
+</head>
+<style>
+    .container{
+        width: 100%;
+        max-width: 1200px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+    .card{
+        width: 30%;
+        margin: 20px auto;
+        min-width: 300px;
+        border: 1px solid black;
+        display: inline-block;
+    }
+    .cardTitle{
+        padding: 0 10px;
+        background-color: #ccc;
+    }
+    .cardTitle h2{
+        display: inline-block;
+    }
+    .cardContent h3{
+        padding: 0 10px;
+        display: inline-block;
+    }
+</style>
+<body>
+    <div id="app">
+        <div class="container">
+            <div v-for="data in weatherData" class="card">
+                <div class="cardTitle">
+                    <h2>{{data.locationName}}</h2>
+                    <span>今日{{data.weatherElement[0].time[0].startTime}}明日{{data.weatherElement[0].time[0].endTime}}</span>
+                </div>
+                <div class="cardContent">
+                    <h3>{{data.weatherElement[0].time[0].parameter.parameterName}}</h3>
+                    <span>{{data.weatherElement[2].time[0].parameter.parameterName}}~{{data.weatherElement[4].time[0].parameter.parameterName}}</span>
+                    <span>降雨機率：<small></small>{{data.weatherElement[2].time[0].parameter.parameterName}}%</small></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        new Vue({
+            el: '#app',
+            data:{
+                weatherData: [],
+            },
+            methods: {},
+            mounted(){
+                const apiKey = 'CWB-154AE392-55E1-4A2B-BD6F-29FAACFC038D';
+                const url = 'https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001';
+                fetch(`${url}?Authorization=${apiKey}`)
+                    .then((data) => data.json())
+                    .then(data => {
+                        // console.log(data)
+                        // console.log(data.records.location)
+                        this.weatherData = data.records.location;
+                        console.log(this.weatherData);
+                    })
+                    .catch(error => console.log(error));
+            }
+        });
+    </script>
+</body>
+
+<!-- {"locationName":"嘉義縣","weatherElement":
+[{"elementName":"Wx",
+"time":[{"startTime":"2019-10-05 12:00:00","endTime":"2019-10-05 18:00:00","parameter":{"parameterName":"多雲時陰","parameterValue":"5"}},
+        {"startTime":"2019-10-05 18:00:00","endTime":"2019-10-06 06:00:00","parameter":{"parameterName":"多雲","parameterValue":"4"}},
+        {"startTime":"2019-10-06 06:00:00","endTime":"2019-10-06 18:00:00","parameter":{"parameterName":"晴時多雲","parameterValue":"2"}}]},
+
+{"elementName":"PoP",
+"time":[{"startTime":"2019-10-05 12:00:00","endTime":"2019-10-05 18:00:00","parameter":{"parameterName":"10","parameterUnit":"百分比"}},
+        {"startTime":"2019-10-05 18:00:00","endTime":"2019-10-06 06:00:00","parameter":{"parameterName":"0","parameterUnit":"百分比"}},
+        {"startTime":"2019-10-06 06:00:00","endTime":"2019-10-06 18:00:00","parameter":{"parameterName":"20","parameterUnit":"百分比"}}]}, -->
+
+<!-- {"elementName":"MinT",
+"time":[{"startTime":"2019-10-05 12:00:00","endTime":"2019-10-05 18:00:00",
+"parameter":{"parameterName":"28","parameterUnit":"C"}},
+{"startTime":"2019-10-05 18:00:00","endTime":"2019-10-06 06:00:00",
+"parameter":{"parameterName":"24","parameterUnit":"C"}},
+{"startTime":"2019-10-06 06:00:00","endTime":"2019-10-06 18:00:00",
+"parameter":{"parameterName":"24","parameterUnit":"C"}}]},
+
+{"elementName":"CI",
+"time":[{"startTime":"2019-10-05 12:00:00","endTime":"2019-10-05 18:00:00",
+"parameter":{"parameterName":"舒適至悶熱"}},
+{"startTime":"2019-10-05 18:00:00","endTime":"2019-10-06 06:00:00",
+"parameter":{"parameterName":"舒適"}},
+{"startTime":"2019-10-06 06:00:00","endTime":"2019-10-06 18:00:00",
+"parameter":{"parameterName":"舒適至悶熱"}}]},
+
+{"elementName":"MaxT",
+"time":[{"startTime":"2019-10-05 12:00:00","endTime":"2019-10-05 18:00:00",
+"parameter":{"parameterName":"32","parameterUnit":"C"}},
+{"startTime":"2019-10-05 18:00:00","endTime":"2019-10-06 06:00:00",
+"parameter":{"parameterName":"28","parameterUnit":"C"}},
+{"startTime":"2019-10-06 06:00:00","endTime":"2019-10-06 18:00:00",
+"parameter":{"parameterName":"32","parameterUnit":"C"}}]}]}, -->
+
+</html>

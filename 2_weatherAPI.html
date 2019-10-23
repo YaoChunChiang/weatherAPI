@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>天氣API</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js"></script>
+</head>
+<style>
+    .container{
+        font-family: 'PingFang SC', '微軟正黑體';
+        width: 100%;
+        max-width: 1200px;
+        margin: auto;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        /* align-items: flex-start; */
+        position: relative;
+    }
+    .card{
+        width: 30%;
+        margin: 20px 1.5%;
+        min-width: 350px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .card:last-child{
+        margin-right: auto;
+        /* justify-self: start; */
+    }
+    .cardTitle{
+        padding: 0 10px;
+        background-color: #eee;
+    }
+    .cardTitle h2{
+        display: inline-block;
+    }
+    .cardContent h3{
+        padding: 0 10px;
+        display: inline-block;
+    }
+    .filter{
+        /* font-size: 14px; */
+        display: flex;
+        justify-content: center;
+    }
+    #date, #search, #citys{
+        font-size: 14px;
+    }
+</style>
+<body>
+    <div id="app">
+        <div class="filter">
+            <select name="date" id="date" v-model="when">
+                <!-- <option value="0">{{`${year}-${date} 12點 ~ ${year}-${date} 18點`}}</option>
+                <option value="1">{{`${year}-${date} 18點 ~ ${year}-${date + 1} 6點`}}</option>
+                <option value="2">{{`${year}-${date + 1} 6點 ~ ${year}-${date + 1} 18點`}}</option> -->
+                <option value="0">今天12點 ~ 今天18點</option>
+                <option value="1">今天18點 ~ 明天6點</option>
+                <option value="2">明天6點 ~ 明天18點</option>
+            </select>
+            <input id="search" @input="filterCity" v-model="keyword" type="text" placeholder="請輸入城市名">
+            <span id="cannotFind"></span>
+        </div>
+        <div class="container">
+            <div v-for="data in weatherData" class="card">
+                <div class="cardTitle">
+                    <h2>{{data.locationName}}</h2>
+                    <span>今日{{data.weatherElement[0].time[when].startTime.slice(11, 16)}} ~ 明日{{data.weatherElement[0].time[when].endTime.slice(11, 16)}}</span>
+                </div>
+                <div class="cardContent">
+                    <h3>{{data.weatherElement[0].time[when].parameter.parameterName}}</h3>
+                    <span>{{data.weatherElement[2].time[when].parameter.parameterName}}&deg;~{{data.weatherElement[4].time[when].parameter.parameterName}}&deg;</span>
+                    <span>降雨機率：{{data.weatherElement[2].time[when].parameter.parameterName}}%</span>
+                </div>
+            </div>
+            <div class="card">
+                    <div class="cardTitle">
+                        <h2>asdfasf</h2>
+                        <span>sdfsdafs</span>
+                    </div>
+                    <div class="cardContent">
+                        <h3>sfdadfa</h3>
+                        <span>asdfasdf</span>
+                        <span>dsfasdfa</span>
+                    </div>
+                </div>
+        </div>
+    </div>
+    <script>
+        new Vue({
+            el: '#app',
+            data:{
+                when: 0,
+                where: '',
+                weatherData: [],
+                // date: new Date().getDate(),
+                // year: new Date().getFullYear(),
+                keyword: '',
+            },
+            methods: {
+                filterCity(){
+                    let titles = document.querySelectorAll(".card .cardTitle h2");
+                    let cards = document.querySelectorAll(".card");
+                    let stay = [];
+                    document.getElementById('cannotFind').innerText = '';
+                    cards.forEach(card => card.style.display = 'block');
+                    // 把搜尋時有配對到的城市的節點放入陣列
+                    titles.forEach(title=> {
+                        if(title.innerText.indexOf(this.keyword) != -1 && this.keyword != ''){
+                            stay.push(title);
+                        }
+                        // console.log(stay)
+                    });
+                    if(stay.length != 0){
+                        cards.forEach(card => card.style.display = 'none');
+                        stay.forEach(city => city.parentElement.parentElement.style.display = 'block');
+                    }else if(this.keyword.length != 0){
+                        document.getElementById('cannotFind').innerText = '找不到此城市';
+                    }
+                },
+            },
+            mounted(){
+                const apiKey = 'CWB-154AE392-55E1-4A2B-BD6F-29FAACFC038D';
+                const url = 'https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001';
+                fetch(`${url}?Authorization=${apiKey}`)
+                    .then((data) => data.json())
+                    .then(data => {
+                        console.log(data)
+                        // console.log(data.records.location)
+                        this.weatherData = data.records.location;
+                        // console.log(this.weatherData);
+                    })
+                    .catch(error => console.log(error));
+            }
+        });
+
+
+        
+    </script>
+</body>
+
+<!-- {"locationName":"嘉義縣","weatherElement":
+[{"elementName":"Wx",
+"time":[{"startTime":"2019-10-05 12:00:00","endTime":"2019-10-05 18:00:00","parameter":{"parameterName":"多雲時陰","parameterValue":"5"}},
+        {"startTime":"2019-10-05 18:00:00","endTime":"2019-10-06 06:00:00","parameter":{"parameterName":"多雲","parameterValue":"4"}},
+        {"startTime":"2019-10-06 06:00:00","endTime":"2019-10-06 18:00:00","parameter":{"parameterName":"晴時多雲","parameterValue":"2"}}]},
+
+{"elementName":"PoP",
+"time":[{"startTime":"2019-10-05 12:00:00","endTime":"2019-10-05 18:00:00","parameter":{"parameterName":"10","parameterUnit":"百分比"}},
+        {"startTime":"2019-10-05 18:00:00","endTime":"2019-10-06 06:00:00","parameter":{"parameterName":"0","parameterUnit":"百分比"}},
+        {"startTime":"2019-10-06 06:00:00","endTime":"2019-10-06 18:00:00","parameter":{"parameterName":"20","parameterUnit":"百分比"}}]}, -->
+
+<!-- {"elementName":"MinT",
+"time":[{"startTime":"2019-10-05 12:00:00","endTime":"2019-10-05 18:00:00",
+"parameter":{"parameterName":"28","parameterUnit":"C"}},
+{"startTime":"2019-10-05 18:00:00","endTime":"2019-10-06 06:00:00",
+"parameter":{"parameterName":"24","parameterUnit":"C"}},
+{"startTime":"2019-10-06 06:00:00","endTime":"2019-10-06 18:00:00",
+"parameter":{"parameterName":"24","parameterUnit":"C"}}]},
+
+{"elementName":"CI",
+"time":[{"startTime":"2019-10-05 12:00:00","endTime":"2019-10-05 18:00:00",
+"parameter":{"parameterName":"舒適至悶熱"}},
+{"startTime":"2019-10-05 18:00:00","endTime":"2019-10-06 06:00:00",
+"parameter":{"parameterName":"舒適"}},
+{"startTime":"2019-10-06 06:00:00","endTime":"2019-10-06 18:00:00",
+"parameter":{"parameterName":"舒適至悶熱"}}]},
+
+{"elementName":"MaxT",
+"time":[{"startTime":"2019-10-05 12:00:00","endTime":"2019-10-05 18:00:00",
+"parameter":{"parameterName":"32","parameterUnit":"C"}},
+{"startTime":"2019-10-05 18:00:00","endTime":"2019-10-06 06:00:00",
+"parameter":{"parameterName":"28","parameterUnit":"C"}},
+{"startTime":"2019-10-06 06:00:00","endTime":"2019-10-06 18:00:00",
+"parameter":{"parameterName":"32","parameterUnit":"C"}}]}]}, -->
+
+</html>
